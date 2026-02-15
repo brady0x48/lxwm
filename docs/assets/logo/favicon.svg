@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">lxwm favicon</title>
+  <desc id="desc">Square BSP icon from the lxwm banner.</desc>
+  <rect x="0" y="0" width="96" height="96" rx="6" fill="#232323" stroke="#3a3a3a" stroke-width="2"/>
+  <line x1="48" y1="0" x2="48" y2="96" stroke="#3a3a3a" stroke-width="2"/>
+  <line x1="48" y1="48" x2="96" y2="48" stroke="#3a3a3a" stroke-width="2"/>
+  <rect x="3" y="3" width="42" height="90" rx="3" fill="#2f3f3f"/>
+</svg>

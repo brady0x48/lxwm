@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 128" role="img" aria-labelledby="title desc">
+  <title id="title">lxwm banner</title>
+  <desc id="desc">BSP-inspired icon with lxwm wordmark and subtitle.</desc>
+
+  <rect width="560" height="128" fill="#1b1b1b"/>
+
+  <!-- icon block -->
+  <g transform="translate(16,16)">
+    <rect x="0" y="0" width="96" height="96" rx="6" fill="#232323" stroke="#3a3a3a" stroke-width="2"/>
+
+    <!-- BSP split lines -->
+    <line x1="48" y1="0" x2="48" y2="96" stroke="#3a3a3a" stroke-width="2"/>
+    <line x1="48" y1="48" x2="96" y2="48" stroke="#3a3a3a" stroke-width="2"/>
+
+    <!-- active pane hint -->
+    <rect x="3" y="3" width="42" height="90" rx="3" fill="#2f3f3f"/>
+
+  </g>
+
+  <!-- wordmark -->
+  <text x="134" y="76" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="56" fill="#d8d8d8">l</text>
+  <text x="170" y="76" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="56" fill="#0b5f5f">x</text>
+  <text x="206" y="76" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="56" fill="#d8d8d8">wm</text>
+  <text x="134" y="100" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="14" fill="#a0a0a0">Light X Window Manager</text>
+</svg>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>User guide - lxwm</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="../assets/logo/favicon.svg">
+</head>
+
+<body>
+  <main class="docs-shell">
+    <aside class="sidebar"><a class="brand" href="../index.html">lxwm docs</a>
+      <div class="nav-group">
+        <p class="nav-title">Get started</p>
+        <ul class="nav-list">
+          <li><a class="nav-link" href="../index.html">Overview</a></li>
+          <li><a class="nav-link active" href="user-guide.html">User guide</a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-title">Reference</p>
+        <ul class="nav-list">
+          <li><a class="nav-link" href="external-bars.html">External bars</a></li>
+          <li><a class="nav-link" href="debug-logging.html">Debug logging</a></li>
+          <li><a class="nav-link" href="changelog.html">Changelog</a></li>
+          <li><a class="nav-link" href="09-troubleshooting.html">Troubleshooting</a></li>
+        </ul>
+      </div>
+    </aside>
+    <section class="content">
+      <div class="topline">
+        <span class="chip">Documentation</span>
+        <a class="btn primary" href="#install">Install</a>
+      </div>
+
+      <section class="hero">
+        <h1>User guide</h1>
+        <p>This page is the full user manual. It covers setup, controls, layout behavior, and bar configuration.</p>
+      </section>
+      <section class="section">
+        <h2>Table of contents</h2>
+        <ol class="list">
+          <li><a href="#intro">Intro</a></li>
+          <li><a href="#install">Install and run</a></li>
+          <li><a href="#config">Config basics</a></li>
+          <li><a href="#keybinds">Keybindings</a></li>
+          <li><a href="#mouse">Mouse controls</a></li>
+          <li><a href="#workspaces">Workspaces and monitors</a></li>
+          <li><a href="#rules">Window rules</a></li>
+          <li><a href="#layout">Layout model</a></li>
+          <li><a href="#bar">Bar configuration</a></li>
+        </ol>
+      </section>
+      <section id="intro" class="section">
+        <h2>1. Intro</h2>
+        <p>lxwm is a light, keyboard-first, tiling X11 window manager.</p>
+        <div class="note">Config path: <code>~/.config/lxwm/config</code>
+        </div>
+      </section>
+      <section id="install" class="section">
+        <h2>2. Install and run</h2>
+        <pre><code>make
+sudo make install</code></pre>
+        <p>For quick local testing:</p>
+        <pre><code>make
+./lxwm</code></pre>
+        <p>For nested testing in Xephyr:</p>
+        <pre><code>./run.sh</code></pre>
+      </section>
+      <section id="config" class="section">
+        <h2>3. Config basics</h2>
+        <pre><code>[core]
+mod = Alt
+focus_policy = click
+bar_enabled = 1
+ipc_enabled = 1
+
+[variables]
+term = xterm
+
+[autostart]
+cursor = xsetroot -cursor_name left_ptr
+
+[keybinds]
+Mod+Return = spawn $term</code></pre>
+        <p>Reload config with <span class="kbd">Mod+r</span>.</p>
+        <p><code>[variables]</code>, <code>[autostart]</code>, and <code>[keybinds]</code> are global-scope sections.
+          Most other options are grouped by feature.</p>
+        <h3>Core config directives</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Directive</th>
+              <th>Purpose</th>
+              <th>Accepted values</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>setmod</code></td>
+              <td>Set primary mod key.</td>
+              <td>
+                <code>Alt</code>, <code>Mod1</code>, <code>Super</code>, <code>Mod4</code>, <code>Control</code>,
+                <code>Ctrl</code>
+              </td>
+              <td><code>setmod Alt</code></td>
+            </tr>
+            <tr>
+              <td><code>focus_policy</code></td>
+              <td>Choose focus behavior.</td>
+              <td>
+                <code>click</code>, <code>hover</code>
+              </td>
+              <td><code>focus_policy click</code></td>
+            </tr>
+            <tr>
+              <td><code>bar_enabled</code></td>
+              <td>Enable or disable built-in bar.</td>
+              <td>
+                <code>1/0</code>, <code>on/off</code>, <code>true/false</code>, <code>yes/no</code>
+              </td>
+              <td><code>bar_enabled 0</code></td>
+            </tr>
+            <tr>
+              <td><code>ipc_enabled</code></td>
+              <td>Enable or disable local IPC socket.</td>
+              <td>
+                <code>1/0</code>, <code>on/off</code>, <code>true/false</code>, <code>yes/no</code>
+              </td>
+              <td><code>ipc_enabled 1</code></td>
+            </tr>
+            <tr>
+              <td><code>log_level</code></td>
+              <td>Set runtime log verbosity.</td>
+              <td>
+                <code>off</code>, <code>error</code>, <code>info</code>, <code>debug</code> (or <code>0..3</code>)
+              </td>
+              <td><code>log_level error</code></td>
+            </tr>
+            <tr>
+              <td><code>log_path</code></td>
+              <td>Set log file path.</td>
+              <td>Any writable file path.</td>
+              <td><code>log_path /tmp/lxwm.log</code></td>
+            </tr>
+            <tr>
+              <td><code>font</code></td>
+              <td>Set UI font family/pattern.</td>
+              <td>Any system font or Xft font pattern.</td>
+              <td><code>font monospace</code></td>
+            </tr>
+            <tr>
+              <td><code>font_size</code></td>
+              <td>Set UI font size.</td>
+              <td>Integer <code>6..72</code>.</td>
+              <td><code>font_size 12</code></td>
+            </tr>
+            <tr>
+              <td><code>set $name</code></td>
+              <td>Define variable for reuse.</td>
+              <td>Any variable name and string value.</td>
+              <td><code>set $term xterm</code></td>
+            </tr>
+            <tr>
+              <td><code>autostart</code></td>
+              <td>Run command on WM startup.</td>
+              <td>Any shell command line.</td>
+              <td><code>autostart nm-applet</code></td>
+            </tr>
+            <tr>
+              <td><code>bind</code></td>
+              <td>Create keybinding.</td>
+              <td>See action list below.</td>
+              <td><code>bind Mod Return spawn $term</code></td>
+            </tr>
+            <tr>
+              <td><code>workspace_name</code></td>
+              <td>Set workspace label in bar.</td>
+              <td><code>workspace_name &lt;1..10&gt; &lt;label&gt;</code></td>
+              <td><code>workspace_name 1 main</code></td>
+            </tr>
+            <tr>
+              <td><code>monitor_workspaces</code></td>
+              <td>Assign workspace sets per monitor.</td>
+              <td>
+                <code>monitor_workspaces &lt;monitor&gt; &lt;spec&gt;</code>. Spec supports <code>all</code>,
+                <code>odd</code>, <code>even</code>, list (<code>1,3,5</code>), range (<code>1-5</code>), or mixed.
+              </td>
+              <td><code>monitor_workspaces 1 odd</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Bind actions and arguments</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Argument</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>spawn</code></td>
+              <td>Command string</td>
+              <td><code>bind Mod Return spawn xterm</code></td>
+            </tr>
+            <tr>
+              <td>
+                <code>ws</code>, <code>move_to_ws</code>
+              </td>
+              <td>Workspace <code>1..10</code>
+              </td>
+              <td><code>bind Mod 3 ws 3</code></td>
+            </tr>
+            <tr>
+              <td>
+                <code>move_float</code>, <code>resize_float</code>
+              </td>
+              <td>
+                <code>dx dy</code> integer pair
+              </td>
+              <td><code>bind Mod+Ctrl+h move_float -20 0</code></td>
+            </tr>
+            <tr>
+              <td>
+                <code>focus_next</code>, <code>focus_prev</code>, <code>focus_left</code>, <code>focus_right</code>,
+                <code>focus_up</code>, <code>focus_down</code>, <code>kill</code>, <code>quit</code>,
+                <code>reload</code>, <code>restart</code>, <code>toggle_float</code>, <code>fullscreen</code>,
+                <code>split_toggle</code>, <code>rotate_tree</code>, <code>swap_next</code>, <code>scratchpad</code>
+              </td>
+              <td>No argument</td>
+              <td><code>bind Mod f fullscreen</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>IPC commands and socket examples are documented in <a href="external-bars.html">External bars</a>.</p>
+      </section>
+      <section id="keybinds" class="section">
+        <h2>4. Keybindings</h2>
+        <p>Bind syntax: <code>bind &lt;mods&gt; &lt;key&gt; &lt;action&gt; [arg]</code></p>
+
+        <h3>Default core bindings</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Keys</th>
+              <th>Action</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="kbd">Mod+Return</span></td>
+              <td><code>spawn $term</code></td>
+              <td>Launch terminal.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+r</span></td>
+              <td><code>reload</code></td>
+              <td>Reload config and re-grab keys.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Shift+r</span></td>
+              <td><code>restart</code></td>
+              <td>Restart lxwm in place.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Shift+q</span></td>
+              <td><code>kill</code></td>
+              <td>Close focused window (WM_DELETE).</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Ctrl+Shift+q</span></td>
+              <td><code>quit</code></td>
+              <td>Exit lxwm.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Focus and workspace navigation</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Keys</th>
+              <th>Action</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="kbd">Mod+h</span></td>
+              <td><code>focus_left</code></td>
+              <td>Focus window to the left.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+l</span></td>
+              <td><code>focus_right</code></td>
+              <td>Focus window to the right.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+k</span></td>
+              <td><code>focus_up</code></td>
+              <td>Focus window above.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+j</span></td>
+              <td><code>focus_down</code></td>
+              <td>Focus window below.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+1..9</span></td>
+              <td><code>ws N</code></td>
+              <td>Switch workspace.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Shift+1..9</span></td>
+              <td><code>move_to_ws N</code></td>
+              <td>Move focused window to workspace.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Layout and window state</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Keys</th>
+              <th>Action</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="kbd">Mod+Shift+space</span></td>
+              <td><code>toggle_float</code></td>
+              <td>Toggle floating mode for focused window.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+f</span></td>
+              <td><code>fullscreen</code></td>
+              <td>Toggle fullscreen for focused window.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+s</span></td>
+              <td><code>split_toggle</code></td>
+              <td>Flip split orientation at focused node.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Shift+s</span></td>
+              <td><code>rotate_tree</code></td>
+              <td>Rotate workspace split orientation.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Shift+Return</span></td>
+              <td><code>swap_next</code></td>
+              <td>Swap focused tiled window with next tiled window.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+minus</span></td>
+              <td><code>scratchpad</code></td>
+              <td>Send/recall scratchpad window.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Floating move and resize</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Keys</th>
+              <th>Action</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="kbd">Mod+Ctrl+h/j/k/l</span></td>
+              <td><code>move_float</code></td>
+              <td>Move focused floating window by 20px.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Ctrl+Shift+h/j/k/l</span></td>
+              <td><code>resize_float</code></td>
+              <td>Resize floating window by 20px. On tiled windows this nudges splits.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section id="mouse" class="section">
+        <h2>5. Mouse controls</h2>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Input</th>
+              <th>Effect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Click window</td>
+              <td>Focus window.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Left drag</span></td>
+              <td>Move floating window.</td>
+            </tr>
+            <tr>
+              <td><span class="kbd">Mod+Right drag</span></td>
+              <td>Resize floating window.</td>
+            </tr>
+            <tr>
+              <td>Click workspace button in bar</td>
+              <td>Switch workspace on that monitor.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section id="workspaces" class="section">
+        <h2>6. Workspaces and monitors</h2>
+        <p>Use monitor workspace masks only when 2+ monitors exist.</p>
+        <pre><code>monitor_workspaces 1 odd
+monitor_workspaces 2 even</code></pre>
+        <p>Set workspace button labels:</p>
+        <pre><code>workspace_name 1 main
+workspace_name 2 web</code></pre>
+      </section>
+      <section id="rules" class="section">
+        <h2>7. Window rules</h2>
+        <p>Rules determine how a window is managed after being opened.</p>
+        <p>Rule actions: <code>float</code>, <code>tile</code>, <code>ws &lt;1..10&gt;</code> (or
+          <code>workspace &lt;1..10&gt;</code>), <code>monitor &lt;1..16&gt;</code>.
+        </p>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Directive</th>
+              <th>Match target</th>
+              <th>What it can set</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>rule_class</code></td>
+              <td>WM_CLASS class</td>
+              <td>float/tile, workspace, monitor</td>
+            </tr>
+            <tr>
+              <td><code>rule_instance</code></td>
+              <td>WM_CLASS instance</td>
+              <td>float/tile, workspace, monitor</td>
+            </tr>
+            <tr>
+              <td><code>rule_title</code></td>
+              <td>title substring</td>
+              <td>float/tile, workspace, monitor</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code>rule_class Firefox ws 3
+rule_instance Navigator monitor 2
+rule_title Picture-in-Picture float</code></pre>
+      </section>
+      <section id="layout" class="section">
+        <h2>8. Layout model</h2>
+        <p>lxwm uses a binary split tree per workspace. New tiled windows split the focused tile.</p>
+        <figure class="diagram-svg" aria-label="BSP tiling layout example"><img src="../assets/layout-bsp.svg"
+            alt="Monitor workspace split into Tile A on the left and Tile B and Tile C stacked on the right.">
+          <figcaption>Example split: first split vertical, then right branch split horizontal.</figcaption>
+        </figure>
+      </section>
+      <section id="bar" class="section">
+        <h2>9. Bar configuration</h2>
+        <p>The bar has three zones: workspace buttons, divider, and right-side modules.</p>
+        <div class="diagram">[ ws ][ ws ][ ws ] [ divider ] [ cpu ][ mem ][ time ]</div>
+
+        <h3>Base Bar Block</h3>
+        <p>Start with global bar layout and module ordering in <code>[bar]</code>.</p>
+        <pre><code>[bar]
+modules = cpu,mem,time
+module_sep = |
+module_gap = 10
+module_slot_w = 86
+
+ws_gap = 0
+ws_pad_x = 0
+ws_pad_y = 0
+ws_width = 28
+divider_min_w = 80
+right_zone_min_w = 220</code></pre>
+
+        <h3>Workspace And Divider Colors</h3>
+        <p>These belong in <code>[bar]</code> because they style shared bar areas.</p>
+        <pre><code>[bar]
+ws_active_color = #2f3f3f
+ws_inactive_color = #232323
+ws_urgent_color = #8c4a4a
+divider_color = #2f3f3f</code></pre>
+
+        <h3>Per-Module Blocks</h3>
+        <p>Each module has a dedicated section: <code>[bar.cpu]</code>, <code>[bar.mem]</code>, etc.</p>
+        <pre><code>[bar.cpu]
+format = "CPU {cpu}"
+color = #d8d8d8
+
+[bar.mem]
+format = "MEM {mem}"
+color = #d8d8d8
+
+[bar.time]
+format = "%H:%M"
+color = #d8d8d8
+
+[bar.wifi]
+format = "WIFI {strength}"
+color = #0b5f5f
+down_color = #a05555</code></pre>
+
+        <h3>Module Format Placeholders</h3>
+        <p>Format strings use variables specific to each module.</p>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Format key</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CPU</td>
+              <td><code>[bar.cpu] format</code></td>
+              <td><code>CPU {cpu}</code></td>
+            </tr>
+            <tr>
+              <td>Memory</td>
+              <td><code>[bar.mem] format</code></td>
+              <td><code>MEM {mem}</code></td>
+            </tr>
+            <tr>
+              <td>Time</td>
+              <td><code>[bar.time] format</code></td>
+              <td><code>%H:%M</code></td>
+            </tr>
+            <tr>
+              <td>WiFi</td>
+              <td><code>[bar.wifi] format</code></td>
+              <td><code>WIFI {strength}</code></td>
+            </tr>
+            <tr>
+              <td>Ethernet</td>
+              <td><code>[bar.ethernet] format</code></td>
+              <td><code>ETH {iface}</code></td>
+            </tr>
+            <tr>
+              <td>IP</td>
+              <td><code>[bar.ip] format</code></td>
+              <td><code>IP {addr}</code></td>
+            </tr>
+            <tr>
+              <td>Battery</td>
+              <td><code>[bar.battery] format</code></td>
+              <td><code>BAT {battery}</code></td>
+            </tr>
+            <tr>
+              <td>CPU temp</td>
+              <td><code>[bar.cputemp] format</code></td>
+              <td><code>TEMP {temp}</code></td>
+            </tr>
+            <tr>
+              <td>Disk</td>
+              <td><code>[bar.disk] format</code></td>
+              <td><code>DISK {used} / {total}</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Module Names And Aliases</h3>
+        <p>Available modules: <code>cpu</code>, <code>mem</code>, <code>time</code>, <code>wifi</code>,
+          <code>ethernet</code>, <code>ip</code>, <code>battery</code>, <code>cputemp</code>, <code>disk</code>.
+        </p>
+        <p>Accepted aliases in <code>bar_modules</code>: <code>memory</code> for <code>mem</code>, <code>clock</code>
+          for <code>time</code>, <code>eth</code> for <code>ethernet</code>, <code>batt</code> for <code>battery</code>,
+          <code>temp</code> for <code>cputemp</code>.
+        </p>
+        <h3>Module Variable Reference</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Variables</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>cpu</td>
+              <td><code>{percent}</code>, <code>{cpu}</code></td>
+            </tr>
+            <tr>
+              <td>mem</td>
+              <td><code>{percent}</code>, <code>{mem}</code></td>
+            </tr>
+            <tr>
+              <td>wifi</td>
+              <td><code>{strength}</code>, <code>{wifi}</code>, <code>{state}</code></td>
+            </tr>
+            <tr>
+              <td>ethernet</td>
+              <td><code>{iface}</code>, <code>{ethernet}</code>, <code>{state}</code></td>
+            </tr>
+            <tr>
+              <td>ip</td>
+              <td><code>{addr}</code>, <code>{ip}</code>, <code>{state}</code></td>
+            </tr>
+            <tr>
+              <td>battery</td>
+              <td><code>{percent}</code>, <code>{battery}</code></td>
+            </tr>
+            <tr>
+              <td>cputemp</td>
+              <td><code>{temp}</code>, <code>{cputemp}</code></td>
+            </tr>
+            <tr>
+              <td>disk</td>
+              <td><code>{used}</code>, <code>{free}</code>, <code>{avail}</code>, <code>{total}</code>,
+                <code>{used_total}</code>, <code>{disk}</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Disk Options</h3>
+        <table class="kv-table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Default</th>
+              <th>Valid values</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>[bar.disk] mode</code></td>
+              <td><code>used_total</code></td>
+              <td>
+                <code>used</code>, <code>free</code> (or <code>avail</code>), <code>used_total</code>
+              </td>
+            </tr>
+            <tr>
+              <td><code>[bar.disk] path</code></td>
+              <td><code>/</code></td>
+              <td>mount path</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </section>
+  </main>
+</body>
+
+</html>

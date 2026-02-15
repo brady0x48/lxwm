@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Debug logging - lxwm</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" type="image/svg+xml" href="../assets/logo/favicon.svg">
+</head>
+
+<body>
+  <main class="docs-shell">
+    <aside class="sidebar"><a class="brand" href="../index.html">lxwm docs</a>
+
+      <div class="nav-group">
+        <p class="nav-title">Get started</p>
+        <ul class="nav-list">
+          <li><a class="nav-link" href="../index.html">Overview</a></li>
+          <li><a class="nav-link" href="user-guide.html">User guide</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <p class="nav-title">Reference</p>
+        <ul class="nav-list">
+          <li><a class="nav-link" href="external-bars.html">External bars</a></li>
+          <li><a class="nav-link active" href="debug-logging.html">Debug logging</a></li>
+          <li><a class="nav-link" href="changelog.html">Changelog</a></li>
+          <li><a class="nav-link" href="09-troubleshooting.html">Troubleshooting</a></li>
+        </ul>
+      </div>
+    </aside>
+    <section class="content">
+      <div class="topline"><span class="chip">Reference</span></div>
+
+      <section class="hero">
+        <h1>Debug logging</h1>
+        <p>lxwm includes configurable runtime logging and spawn command logging.</p>
+      </section>
+      <section class="section">
+        <h2>Current behavior</h2>
+        <ul class="list">
+          <li>Set log level with <code>log_level off|error|info|debug</code>.</li>
+          <li>Set output file with <code>log_path /tmp/lxwm.log</code>.</li>
+          <li>Spawn command output is appended to the configured log path.</li>
+        </ul>
+      </section>
+      <section class="section">
+        <h2>Planned improvements</h2>
+        <ul class="list">
+          <li>More structured event logging for focus and workspace transitions.</li>
+          <li>Optional log rotation policy documentation.</li>
+          <li>Expanded diagnostics for rule matching and monitor assignment.</li>
+        </ul>
+      </section>
+    </section>
+  </main>
+</body>
+
+</html>

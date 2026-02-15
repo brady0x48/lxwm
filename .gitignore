@@ -1,0 +1,8 @@
+# build artifacts
+lxwm
+lxwm-msg
+*.o
+
+# local logs
+*.log
+tmp/

@@ -1,0 +1,141 @@
+# ~/.config/lxwm/config
+
+[core]
+mod = Alt
+focus_policy = click   # click | hover
+bar_enabled = 1
+ipc_enabled = 1
+log_level = error      # off | error | info | debug
+log_path = /tmp/lxwm.log
+font = monospace
+font_size = 12
+
+[variables]
+term = xterm
+
+[autostart]
+cursor = xsetroot -cursor_name left_ptr
+
+[workspaces]
+# Workspace labels in the bar
+# 1 = main
+# 2 = web
+
+# Workspace assignment per monitor.
+# Active only when 2+ monitors exist.
+# On a laptop/external monitor setup, monitor 1 is typically the laptop screen and monitor 2 is the external monitor.
+monitor_workspaces = 1 odd
+monitor_workspaces = 2 even
+
+[rules]
+# Optional: class/instance/title-based window rules
+# rule_class XTerm ws 2
+# rule_instance Navigator monitor 2
+# rule_title Picture-in-Picture float
+# rule_class feh float
+# rule_class Firefox monitor 2
+
+[bar]
+# Available modules: cpu,mem,time,wifi,ethernet,ip,battery,cputemp,disk
+modules = cpu,mem,cputemp,disk,wifi,ethernet,ip,battery,time
+module_sep = |
+module_gap = 10
+module_slot_w = 86
+
+ws_gap = 0
+ws_pad_x = 0
+ws_pad_y = 0
+ws_width = 28
+divider_min_w = 80
+right_zone_min_w = 220
+
+ws_active_color = #2f3f3f
+ws_inactive_color = #232323
+ws_urgent_color = #8c4a4a
+divider_color = #2f3f3f
+
+[bar.cpu]
+format = "CPU {cpu}"
+color = #d8d8d8
+
+[bar.mem]
+format = "MEM {mem}"
+color = #d8d8d8
+
+[bar.time]
+format = "%H:%M"
+color = #d8d8d8
+
+[bar.wifi]
+format = "WIFI {strength}"
+color = #0b5f5f
+down_color = #a05555
+
+[bar.ethernet]
+format = "ETH {iface}"
+color = #0b5f5f
+down_color = #a05555
+
+[bar.ip]
+format = "IP {ip}"
+color = #0b5f5f
+down_color = #a05555
+
+[bar.battery]
+format = "BAT {battery}"
+color = #d8d8d8
+
+[bar.cputemp]
+format = "TEMP {temp}"
+color = #d8d8d8
+
+[bar.disk]
+format = "DISK {used} / {total}"
+mode = used_total      # used | free | avail | used_total
+path = /
+color = #d8d8d8
+
+[keybinds]
+Mod+Return = spawn $term
+Mod+h = focus_left
+Mod+l = focus_right
+Mod+k = focus_up
+Mod+j = focus_down
+Mod+Shift+q = kill
+Mod+Control+Shift+q = quit
+Mod+r = reload
+Mod+Shift+r = restart
+Mod+f = fullscreen
+Mod+s = split_toggle
+Mod+minus = scratchpad
+Mod+Shift+s = rotate_tree
+Mod+Shift+Return = swap_next
+Mod+Shift+space = toggle_float
+Mod+Control+h = move_float -20 0
+Mod+Control+l = move_float 20 0
+Mod+Control+k = move_float 0 -20
+Mod+Control+j = move_float 0 20
+Mod+Control+Shift+h = resize_float -20 0
+Mod+Control+Shift+l = resize_float 20 0
+Mod+Control+Shift+k = resize_float 0 -20
+Mod+Control+Shift+j = resize_float 0 20
+
+Mod+1 = ws 1
+Mod+2 = ws 2
+Mod+3 = ws 3
+Mod+4 = ws 4
+Mod+5 = ws 5
+Mod+6 = ws 6
+Mod+7 = ws 7
+Mod+8 = ws 8
+Mod+9 = ws 9
+
+Mod+Shift+1 = move_to_ws 1
+Mod+Shift+2 = move_to_ws 2
+Mod+Shift+3 = move_to_ws 3
+Mod+Shift+4 = move_to_ws 4
+Mod+Shift+5 = move_to_ws 5
+Mod+Shift+6 = move_to_ws 6
+Mod+Shift+7 = move_to_ws 7
+Mod+Shift+8 = move_to_ws 8
+Mod+Shift+9 = move_to_ws 9
