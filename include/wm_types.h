@@ -156,6 +156,7 @@ struct Client
 {
     Window win;
     Window titlebar;
+    char last_title[TITLE_MAX];
     int x;
     int y;
     int w;

@@ -884,6 +884,8 @@ void run(void)
 {
     XEvent ev;
     time_t last_bar_tick = 0;
+    struct timespec last_title_refresh;
+    clock_gettime(CLOCK_MONOTONIC, &last_title_refresh);
     while (running) {
         while (XPending(dpy)) {
             XNextEvent(dpy, &ev);
@@ -949,6 +951,28 @@ void run(void)
                 draw_bar(&monitors[i]);
             }
         }
+
+        struct timespec cur_ts;
+        clock_gettime(CLOCK_MONOTONIC, &cur_ts);
+        long dt_ms = (cur_ts.tv_sec - last_title_refresh.tv_sec) * 1000L +
+                     (cur_ts.tv_nsec - last_title_refresh.tv_nsec) / 1000000L;
+        if (dt_ms >= 100) {
+            last_title_refresh = cur_ts;
+            for (Client *c = clients; c; c = c->next) {
+                if (!c->mapped || c->is_hidden || !c->mon) {
+                    continue;
+                }
+                if (c->workspace != c->mon->current_ws) {
+                    continue;
+                }
+                char cur_title[TITLE_MAX];
+                window_title(c->win, cur_title, sizeof(cur_title));
+                if (strcmp(cur_title, c->last_title) != 0) {
+                    draw_titlebar(c);
+                }
+            }
+        }
+
         struct timespec ts;
         ts.tv_sec = 0;
         ts.tv_nsec = 20 * 1000 * 1000;

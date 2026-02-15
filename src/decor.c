@@ -1,6 +1,6 @@
 #include "wm_internal.h"
 
-static void copy_clean_text(char *dst, size_t dstsz, const char *src)
+static void copy_clean_text_n(char *dst, size_t dstsz, const unsigned char *src, size_t src_len)
 {
     if (!dst || dstsz == 0) {
         return;
@@ -10,8 +10,11 @@ static void copy_clean_text(char *dst, size_t dstsz, const char *src)
         return;
     }
     size_t out = 0;
-    for (size_t i = 0; src[i] && out + 1 < dstsz; i++) {
-        unsigned char ch = (unsigned char)src[i];
+    for (size_t i = 0; i < src_len && out + 1 < dstsz; i++) {
+        unsigned char ch = src[i];
+        if (ch == '\0') {
+            break;
+        }
         if (ch == '\n' || ch == '\r' || ch == '\t') {
             dst[out++] = ' ';
             continue;
@@ -31,13 +34,28 @@ static int textprop_to_utf8(const XTextProperty *prop, char *buf, size_t bufsz)
     int count = 0;
     if (Xutf8TextPropertyToTextList(dpy, (XTextProperty *)prop, &list, &count) >= Success &&
         list && count > 0 && list[0]) {
-        copy_clean_text(buf, bufsz, list[0]);
+        copy_clean_text_n(buf, bufsz, (const unsigned char *)list[0], strlen(list[0]));
         XFreeStringList(list);
         return buf[0] != '\0';
     }
+    if (list) {
+        XFreeStringList(list);
+        list = NULL;
+    }
 
-    copy_clean_text(buf, bufsz, (const char *)prop->value);
-    return buf[0] != '\0';
+    count = 0;
+    if (XmbTextPropertyToTextList(dpy, (XTextProperty *)prop, &list, &count) >= Success && list &&
+        count > 0 && list[0]) {
+        copy_clean_text_n(buf, bufsz, (const unsigned char *)list[0], strlen(list[0]));
+        XFreeStringList(list);
+        return buf[0] != '\0';
+    }
+    if (list) {
+        XFreeStringList(list);
+    }
+
+    copy_clean_text_n(buf, bufsz, prop->value, prop->nitems);
+    return (buf[0] != '\0');
 }
 
 char *window_title(Window w, char *buf, size_t bufsz)
@@ -58,11 +76,11 @@ char *window_title(Window w, char *buf, size_t bufsz)
     }
 
     if (XGetWMName(dpy, w, &prop) && prop.value) {
-        textprop_to_utf8(&prop, buf, bufsz);
-        XFree(prop.value);
-        if (buf[0] != '\0') {
+        if (textprop_to_utf8(&prop, buf, bufsz)) {
+            XFree(prop.value);
             return buf;
         }
+        XFree(prop.value);
     }
 
     snprintf(buf, bufsz, "0x%lx", w);
@@ -321,6 +339,7 @@ void draw_titlebar(Client *c)
 
     char title[TITLE_MAX];
     window_title(c->win, title, sizeof(title));
+    snprintf(c->last_title, sizeof(c->last_title), "%s", title);
     XSetForeground(dpy, bar_gc, color_fg);
     int ascent = wm_xft_font ? wm_xft_font->ascent : (bar_font ? bar_font->ascent : 10);
     int descent = wm_xft_font ? wm_xft_font->descent : (bar_font ? bar_font->descent : 2);
