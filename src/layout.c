@@ -51,7 +51,37 @@ void arrange_monitor(Monitor *m)
         return;
     }
     Workspace *ws = &m->ws[m->current_ws];
+
+    Client *fullscreen = NULL;
+    for (Client *c = clients; c; c = c->next) {
+        if (!c->mapped || c->mon != m || c->workspace != m->current_ws) {
+            continue;
+        }
+        if (c->is_fullscreen) {
+            fullscreen = c;
+            break;
+        }
+    }
+
+    if (fullscreen) {
+        fullscreen->x = m->x;
+        fullscreen->y = m->y;
+        fullscreen->w = m->w;
+        fullscreen->h = m->h;
+        XUnmapWindow(dpy, fullscreen->titlebar);
+        XMoveResizeWindow(dpy, fullscreen->win, fullscreen->x, fullscreen->y,
+                          (unsigned int)fullscreen->w, (unsigned int)fullscreen->h);
+        XRaiseWindow(dpy, fullscreen->win);
+        if (m->bar) {
+            XUnmapWindow(dpy, m->bar);
+        }
+        return;
+    }
+
     if (!ws->root) {
+        if (bar_enabled && m->bar) {
+            XMapRaised(dpy, m->bar);
+        }
         restack_workspace(m);
         draw_bar(m);
         return;
@@ -64,20 +94,8 @@ void arrange_monitor(Monitor *m)
 
     traverse_arrange(ws->root);
 
-    for (Client *c = clients; c; c = c->next) {
-        if (!c->mapped || c->mon != m || c->workspace != m->current_ws) {
-            continue;
-        }
-        if (!c->is_fullscreen) {
-            continue;
-        }
-        c->x = m->x;
-        c->y = m->y;
-        c->w = m->w;
-        c->h = m->h;
-        XUnmapWindow(dpy, c->titlebar);
-        XMoveResizeWindow(dpy, c->win, c->x, c->y, (unsigned int)c->w, (unsigned int)c->h);
-        XRaiseWindow(dpy, c->win);
+    if (bar_enabled && m->bar) {
+        XMapRaised(dpy, m->bar);
     }
     restack_workspace(m);
     draw_bar(m);

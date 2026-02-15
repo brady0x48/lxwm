@@ -1,5 +1,45 @@
 #include "wm_internal.h"
 
+static void copy_clean_text(char *dst, size_t dstsz, const char *src)
+{
+    if (!dst || dstsz == 0) {
+        return;
+    }
+    dst[0] = '\0';
+    if (!src) {
+        return;
+    }
+    size_t out = 0;
+    for (size_t i = 0; src[i] && out + 1 < dstsz; i++) {
+        unsigned char ch = (unsigned char)src[i];
+        if (ch == '\n' || ch == '\r' || ch == '\t') {
+            dst[out++] = ' ';
+            continue;
+        }
+        dst[out++] = (char)ch;
+    }
+    dst[out] = '\0';
+}
+
+static int textprop_to_utf8(const XTextProperty *prop, char *buf, size_t bufsz)
+{
+    if (!prop || !prop->value || prop->nitems == 0 || !buf || bufsz == 0) {
+        return 0;
+    }
+
+    char **list = NULL;
+    int count = 0;
+    if (Xutf8TextPropertyToTextList(dpy, (XTextProperty *)prop, &list, &count) >= Success &&
+        list && count > 0 && list[0]) {
+        copy_clean_text(buf, bufsz, list[0]);
+        XFreeStringList(list);
+        return buf[0] != '\0';
+    }
+
+    copy_clean_text(buf, bufsz, (const char *)prop->value);
+    return buf[0] != '\0';
+}
+
 char *window_title(Window w, char *buf, size_t bufsz)
 {
     if (!buf || bufsz == 0) {
@@ -7,13 +47,24 @@ char *window_title(Window w, char *buf, size_t bufsz)
     }
     buf[0] = '\0';
 
+    Atom net_wm_name = XInternAtom(dpy, "_NET_WM_NAME", False);
     XTextProperty prop;
-    if (XGetWMName(dpy, w, &prop) && prop.value) {
-        strncpy(buf, (char *)prop.value, bufsz - 1);
-        buf[bufsz - 1] = '\0';
+    if (XGetTextProperty(dpy, w, &prop, net_wm_name) && prop.value) {
+        if (textprop_to_utf8(&prop, buf, bufsz)) {
+            XFree(prop.value);
+            return buf;
+        }
         XFree(prop.value);
-        return buf;
     }
+
+    if (XGetWMName(dpy, w, &prop) && prop.value) {
+        textprop_to_utf8(&prop, buf, bufsz);
+        XFree(prop.value);
+        if (buf[0] != '\0') {
+            return buf;
+        }
+    }
+
     snprintf(buf, bufsz, "0x%lx", w);
     return buf;
 }

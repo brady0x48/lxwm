@@ -1,5 +1,31 @@
 #include "wm_internal.h"
 
+static int window_has_fullscreen_state(Window w)
+{
+    Atom actual = None;
+    int format = 0;
+    unsigned long nitems = 0;
+    unsigned long bytes_after = 0;
+    unsigned char *data = NULL;
+    int has_fullscreen = 0;
+
+    if (XGetWindowProperty(dpy, w, net_wm_state, 0, 64, False, XA_ATOM, &actual, &format,
+                           &nitems, &bytes_after, &data) == Success &&
+        actual == XA_ATOM && format == 32 && data) {
+        Atom *atoms = (Atom *)data;
+        for (unsigned long i = 0; i < nitems; i++) {
+            if (atoms[i] == net_wm_state_fullscreen) {
+                has_fullscreen = 1;
+                break;
+            }
+        }
+    }
+    if (data) {
+        XFree(data);
+    }
+    return has_fullscreen;
+}
+
 static const char *find_case_substr(const char *haystack, const char *needle)
 {
     if (!haystack || !needle || !*needle) {
@@ -297,6 +323,11 @@ void manage(Window w)
     c->is_hidden = 0;
     c->old_bw = wa.border_width;
     c->is_floating = rule_floating;
+    c->is_fullscreen = window_has_fullscreen_state(w);
+    c->was_floating_before_fullscreen = c->is_floating;
+    if (c->is_fullscreen) {
+        c->is_floating = 1;
+    }
     c->is_scratchpad = 0;
     c->is_urgent = 0;
 
@@ -365,7 +396,9 @@ void manage(Window w)
 
     arrange_monitor(m);
     set_focus(c);
-    XMapWindow(dpy, c->titlebar);
+    if (!c->is_fullscreen) {
+        XMapWindow(dpy, c->titlebar);
+    }
     XMapWindow(dpy, w);
     update_client_urgent(c);
 }

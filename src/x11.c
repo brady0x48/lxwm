@@ -596,6 +596,28 @@ static void on_configure_request(XConfigureRequestEvent *e)
 {
     Client *c = find_client(e->window);
 
+    if (c && c->mon && (e->value_mask & CWX) && (e->value_mask & CWY) && (e->value_mask & CWWidth) &&
+        (e->value_mask & CWHeight)) {
+        int req_x = e->x;
+        int req_y = e->y;
+        int req_w = e->width;
+        int req_h = e->height;
+
+        int mon_x = c->mon->x;
+        int mon_y = c->mon->y;
+        int mon_w = c->mon->w;
+        int mon_h = c->mon->h;
+
+        int near_fullscreen =
+            (abs(req_x - mon_x) <= 2) && (abs(req_y - mon_y) <= 2) && (abs(req_w - mon_w) <= 4) &&
+            ((abs(req_h - mon_h) <= 4) || (abs(req_h - (mon_h - c->mon->bar_h)) <= 4));
+
+        if (near_fullscreen && !c->is_fullscreen) {
+            toggle_fullscreen(c);
+            return;
+        }
+    }
+
     if (c && !c->is_floating) {
         XConfigureEvent ce;
         memset(&ce, 0, sizeof(ce));
@@ -760,6 +782,34 @@ static void on_property_notify(XPropertyEvent *e)
     Client *c = find_client(e->window);
     if (!c) {
         return;
+    }
+    if (e->atom == net_wm_state) {
+        Atom actual = None;
+        int format = 0;
+        unsigned long nitems = 0;
+        unsigned long bytes_after = 0;
+        unsigned char *data = NULL;
+        int has_fullscreen = 0;
+
+        if (XGetWindowProperty(dpy, c->win, net_wm_state, 0, 64, False, XA_ATOM, &actual, &format,
+                               &nitems, &bytes_after, &data) == Success &&
+            actual == XA_ATOM && format == 32 && data) {
+            Atom *atoms = (Atom *)data;
+            for (unsigned long i = 0; i < nitems; i++) {
+                if (atoms[i] == net_wm_state_fullscreen) {
+                    has_fullscreen = 1;
+                    break;
+                }
+            }
+        }
+        if (data) {
+            XFree(data);
+        }
+
+        if (has_fullscreen != c->is_fullscreen) {
+            toggle_fullscreen(c);
+            return;
+        }
     }
     if (e->atom == XA_WM_HINTS) {
         update_client_urgent(c);

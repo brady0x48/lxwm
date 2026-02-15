@@ -56,7 +56,11 @@ void set_focus(Client *c)
     XSetInputFocus(dpy, c->win, RevertToPointerRoot, CurrentTime);
     restack_workspace(c->mon);
     if (c->is_floating || c->is_fullscreen) {
-        XRaiseWindow(dpy, c->titlebar);
+        if (c->is_fullscreen) {
+            XUnmapWindow(dpy, c->titlebar);
+        } else {
+            XRaiseWindow(dpy, c->titlebar);
+        }
         XRaiseWindow(dpy, c->win);
     }
     ewmh_set_active_window(c->win);
