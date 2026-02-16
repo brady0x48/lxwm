@@ -60,12 +60,16 @@ install-user-config:
 	@if [ -n "$(DESTDIR)" ]; then \
 		echo "Skipping user config install because DESTDIR is set."; \
 	else \
+		target_user="$$USER"; \
 		target_home="$$HOME"; \
 		if [ -n "$$SUDO_USER" ]; then \
+			target_user="$$SUDO_USER"; \
 			sudo_home="$$(getent passwd "$$SUDO_USER" | cut -d: -f6)"; \
 			if [ -n "$$sudo_home" ]; then target_home="$$sudo_home"; fi; \
 		fi; \
-		if [ -n "$$target_home" ]; then \
+		if [ -n "$$target_home" ] && [ -n "$$target_user" ]; then \
+			target_uid="$$(id -u "$$target_user" 2>/dev/null || true)"; \
+			target_gid="$$(id -g "$$target_user" 2>/dev/null || true)"; \
 			mkdir -p "$$target_home/$(CONFIG_DEST_REL)"; \
 			if [ ! -f "$$target_home/$(CONFIG_DEST_REL)/config" ]; then \
 				install -m 644 config.example "$$target_home/$(CONFIG_DEST_REL)/config"; \
@@ -73,8 +77,11 @@ install-user-config:
 			else \
 				echo "Keeping existing config: $$target_home/$(CONFIG_DEST_REL)/config"; \
 			fi; \
+			if [ -n "$$target_uid" ] && [ -n "$$target_gid" ]; then \
+				chown "$$target_uid:$$target_gid" "$$target_home/$(CONFIG_DEST_REL)" "$$target_home/$(CONFIG_DEST_REL)/config" 2>/dev/null || true; \
+			fi; \
 		else \
-			echo "Could not determine target home for user config install."; \
+			echo "Could not determine target user/home for config install."; \
 		fi; \
 	fi
 
