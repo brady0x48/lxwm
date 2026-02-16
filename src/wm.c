@@ -37,6 +37,10 @@ char wm_log_path[PATH_MAX] = "/tmp/lxwm.log";
 
 unsigned long color_focus;
 unsigned long color_unfocus;
+unsigned long color_titlebar_focus;
+unsigned long color_titlebar_unfocus;
+unsigned long color_border_focus;
+unsigned long color_border_unfocus;
 unsigned long color_bg;
 unsigned long color_fg;
 unsigned long color_bar_mid;
@@ -149,6 +153,10 @@ int lxwm_check_config(void)
     screen_num = DefaultScreen(dpy);
     color_focus = WhitePixel(dpy, screen_num);
     color_unfocus = BlackPixel(dpy, screen_num);
+    color_titlebar_focus = color_focus;
+    color_titlebar_unfocus = color_unfocus;
+    color_border_focus = color_focus;
+    color_border_unfocus = color_unfocus;
     color_bg = BlackPixel(dpy, screen_num);
     color_fg = WhitePixel(dpy, screen_num);
 

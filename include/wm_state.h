@@ -39,6 +39,10 @@ extern char wm_log_path[PATH_MAX];
 
 extern unsigned long color_focus;
 extern unsigned long color_unfocus;
+extern unsigned long color_titlebar_focus;
+extern unsigned long color_titlebar_unfocus;
+extern unsigned long color_border_focus;
+extern unsigned long color_border_unfocus;
 extern unsigned long color_bg;
 extern unsigned long color_fg;
 extern unsigned long color_bar_mid;

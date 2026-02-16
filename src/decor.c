@@ -329,7 +329,7 @@ void draw_titlebar(Client *c)
         return;
     }
 
-    unsigned long bg = is_focused_client(c) ? color_focus : color_unfocus;
+    unsigned long bg = is_focused_client(c) ? color_titlebar_focus : color_titlebar_unfocus;
     XSetForeground(dpy, bar_gc, bg);
     int title_w = c->w + (2 * BORDER_WIDTH);
     if (title_w < 1) {

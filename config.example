@@ -9,6 +9,10 @@ log_level = error      # off | error | info | debug
 log_path = /tmp/lxwm.log
 font = monospace
 font_size = 12
+titlebar_focus_color = #0b5f5f
+titlebar_unfocus_color = #2d2d2d
+border_focus_color = #0b5f5f
+border_unfocus_color = #2d2d2d
 
 [variables]
 term = xterm

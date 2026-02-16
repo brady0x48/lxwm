@@ -48,7 +48,7 @@ void set_focus(Client *c)
         if (!it->mapped || !it->mon) {
             continue;
         }
-        unsigned long border = (it == c) ? color_focus : color_unfocus;
+        unsigned long border = (it == c) ? color_border_focus : color_border_unfocus;
         XSetWindowBorder(dpy, it->win, border);
         draw_titlebar(it);
     }

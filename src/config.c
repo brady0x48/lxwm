@@ -867,6 +867,34 @@ static void parse_config_line(char *line)
         }
         return;
     }
+    if (!strcmp(cmd, "titlebar_focus_color")) {
+        char *tok = strtok(NULL, " \t\n");
+        if (tok) {
+            color_titlebar_focus = get_color(tok, color_titlebar_focus);
+        }
+        return;
+    }
+    if (!strcmp(cmd, "titlebar_unfocus_color")) {
+        char *tok = strtok(NULL, " \t\n");
+        if (tok) {
+            color_titlebar_unfocus = get_color(tok, color_titlebar_unfocus);
+        }
+        return;
+    }
+    if (!strcmp(cmd, "border_focus_color")) {
+        char *tok = strtok(NULL, " \t\n");
+        if (tok) {
+            color_border_focus = get_color(tok, color_border_focus);
+        }
+        return;
+    }
+    if (!strcmp(cmd, "border_unfocus_color")) {
+        char *tok = strtok(NULL, " \t\n");
+        if (tok) {
+            color_border_unfocus = get_color(tok, color_border_unfocus);
+        }
+        return;
+    }
     if (!strcmp(cmd, "autostart")) {
         char *rest = strtok(NULL, "\n");
         if (rest && autostart_count < MAX_AUTOSTART) {
@@ -1575,6 +1603,10 @@ void load_keybinds(void)
     color_ws_active = get_color("#2f3f3f", color_focus);
     color_ws_inactive = get_color("#232323", color_unfocus);
     color_bar_mid = get_color("#2f3f3f", color_focus);
+    color_titlebar_focus = color_focus;
+    color_titlebar_unfocus = color_unfocus;
+    color_border_focus = color_focus;
+    color_border_unfocus = color_unfocus;
     bar_cpu_color = color_fg;
     bar_mem_color = color_fg;
     bar_time_color = color_fg;
