@@ -26,6 +26,93 @@ static int window_has_fullscreen_state(Window w)
     return has_fullscreen;
 }
 
+int window_is_dock(Window w)
+{
+    Atom net_wm_window_type = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
+    Atom net_wm_window_type_dock = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DOCK", False);
+    Atom net_wm_strut = XInternAtom(dpy, "_NET_WM_STRUT", False);
+    Atom net_wm_strut_partial = XInternAtom(dpy, "_NET_WM_STRUT_PARTIAL", False);
+    Atom actual = None;
+    int format = 0;
+    unsigned long nitems = 0;
+    unsigned long bytes_after = 0;
+    unsigned char *data = NULL;
+    int is_dock = 0;
+
+    if (XGetWindowProperty(dpy, w, net_wm_window_type, 0, 16, False, XA_ATOM, &actual, &format,
+                           &nitems, &bytes_after, &data) == Success &&
+        actual == XA_ATOM && format == 32 && data) {
+        Atom *types = (Atom *)data;
+        for (unsigned long i = 0; i < nitems; i++) {
+            if (types[i] == net_wm_window_type_dock) {
+                is_dock = 1;
+                break;
+            }
+        }
+    }
+    if (data) {
+        XFree(data);
+    }
+
+    data = NULL;
+    actual = None;
+    format = 0;
+    nitems = 0;
+    bytes_after = 0;
+    if (XGetWindowProperty(dpy, w, net_wm_strut_partial, 0, 12, False, XA_CARDINAL, &actual,
+                           &format, &nitems, &bytes_after, &data) == Success &&
+        actual == XA_CARDINAL && format == 32 && data && nitems >= 4) {
+        unsigned long *strut = (unsigned long *)data;
+        if (strut[0] || strut[1] || strut[2] || strut[3]) {
+            is_dock = 1;
+        }
+    }
+    if (data) {
+        XFree(data);
+    }
+    if (is_dock) {
+        return 1;
+    }
+
+    data = NULL;
+    actual = None;
+    format = 0;
+    nitems = 0;
+    bytes_after = 0;
+    if (XGetWindowProperty(dpy, w, net_wm_strut, 0, 4, False, XA_CARDINAL, &actual, &format,
+                           &nitems, &bytes_after, &data) == Success &&
+        actual == XA_CARDINAL && format == 32 && data && nitems >= 4) {
+        unsigned long *strut = (unsigned long *)data;
+        if (strut[0] || strut[1] || strut[2] || strut[3]) {
+            is_dock = 1;
+        }
+    }
+    if (data) {
+        XFree(data);
+    }
+    return is_dock;
+}
+
+void raise_dock_windows(void)
+{
+    Window root_ret = None;
+    Window parent = None;
+    Window *wins = NULL;
+    unsigned int nwins = 0;
+
+    if (!XQueryTree(dpy, root, &root_ret, &parent, &wins, &nwins)) {
+        return;
+    }
+    for (unsigned int i = 0; i < nwins; i++) {
+        if (window_is_dock(wins[i])) {
+            XRaiseWindow(dpy, wins[i]);
+        }
+    }
+    if (wins) {
+        XFree(wins);
+    }
+}
+
 static const char *find_case_substr(const char *haystack, const char *needle)
 {
     if (!haystack || !needle || !*needle) {
@@ -42,6 +129,10 @@ static const char *find_case_substr(const char *haystack, const char *needle)
 
 int should_manage(Window w)
 {
+    if (window_is_dock(w)) {
+        return 0;
+    }
+
     XWindowAttributes wa;
     if (!XGetWindowAttributes(dpy, w, &wa)) {
         return 0;

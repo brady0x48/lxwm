@@ -533,6 +533,12 @@ static void scan_existing_windows(void)
         if (wa.override_redirect || wa.map_state != IsViewable) {
             continue;
         }
+        if (!should_manage(w)) {
+            if (window_is_dock(w)) {
+                XRaiseWindow(dpy, w);
+            }
+            continue;
+        }
         manage(w);
     }
 
@@ -586,7 +592,10 @@ static void on_key_press(XKeyEvent *e)
 static void on_map_request(XMapRequestEvent *e)
 {
     if (!should_manage(e->window)) {
-        XMapWindow(dpy, e->window);
+        XMapRaised(dpy, e->window);
+        if (window_is_dock(e->window)) {
+            XRaiseWindow(dpy, e->window);
+        }
         return;
     }
     manage(e->window);
@@ -884,7 +893,9 @@ void run(void)
 {
     XEvent ev;
     time_t last_bar_tick = 0;
+    struct timespec last_dock_raise;
     struct timespec last_title_refresh;
+    clock_gettime(CLOCK_MONOTONIC, &last_dock_raise);
     clock_gettime(CLOCK_MONOTONIC, &last_title_refresh);
     while (running) {
         while (XPending(dpy)) {
@@ -971,6 +982,12 @@ void run(void)
                     draw_titlebar(c);
                 }
             }
+        }
+        long dock_dt_ms = (cur_ts.tv_sec - last_dock_raise.tv_sec) * 1000L +
+                          (cur_ts.tv_nsec - last_dock_raise.tv_nsec) / 1000000L;
+        if (dock_dt_ms >= 250) {
+            last_dock_raise = cur_ts;
+            raise_dock_windows();
         }
 
         struct timespec ts;

@@ -2,6 +2,8 @@
 set -eu
 
 PROJECT_NAME="lxwm"
+REPO_URL="${LXWM_REPO_URL:-https://github.com/brady0x48/lxwm.git}"
+REPO_REF="${LXWM_REF:-}"
 PREFIX="${PREFIX:-/usr/local}"
 XSESSIONS_DIR="${XSESSIONS_DIR:-/usr/share/xsessions}"
 CONFIG_PATH_REL=".config/lxwm/config"
@@ -27,12 +29,22 @@ need_pkg() {
     fi
 }
 
-repo_root="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-cd "$repo_root"
-
-if [ ! -f "Makefile" ] || [ ! -d "src" ]; then
-    die "run this script from the project root"
+repo_root="$(pwd)"
+if [ -f "$repo_root/Makefile" ] && [ -d "$repo_root/src" ]; then
+    :
+else
+    need_cmd git
+    tmpdir="$(mktemp -d /tmp/lxwm-install.XXXXXX)"
+    trap 'rm -rf "$tmpdir"' EXIT INT TERM
+    say "Project root not detected. Cloning $PROJECT_NAME into a temporary directory..."
+    if [ -n "$REPO_REF" ]; then
+        git clone --depth 1 --branch "$REPO_REF" "$REPO_URL" "$tmpdir/$PROJECT_NAME"
+    else
+        git clone --depth 1 "$REPO_URL" "$tmpdir/$PROJECT_NAME"
+    fi
+    repo_root="$tmpdir/$PROJECT_NAME"
 fi
+cd "$repo_root"
 
 say "Checking required tools..."
 need_cmd make

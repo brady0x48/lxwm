@@ -43,6 +43,7 @@ void restack_workspace(Monitor *m)
         XRaiseWindow(dpy, c->titlebar);
         XRaiseWindow(dpy, c->win);
     }
+    raise_dock_windows();
 }
 
 void arrange_monitor(Monitor *m)

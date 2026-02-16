@@ -4,6 +4,8 @@
 #include "wm_state.h"
 
 int should_manage(Window w);
+int window_is_dock(Window w);
+void raise_dock_windows(void);
 void manage(Window w);
 void unmanage(Client *c, int destroyed);
 void kill_client(Client *c);
